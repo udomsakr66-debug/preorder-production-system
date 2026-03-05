@@ -2,17 +2,22 @@ const express = require('express');
 const router = express.Router();
 const orderController = require('../controllers/order.controller');
 const { auth, authorize } = require('../middleware/auth.middleware');
-const upload = require('../middleware/upload.middleware'); // ต้องใช้ middleware ตัวนี้เพื่อรับไฟล์ภาพ/PDF
+const upload = require('../middleware/upload.middleware');
 
-// 1. ✅ แก้ Error 404: เพิ่ม Route สำหรับ "สร้างออเดอร์ใหม่" (POST)
-// ใช้ upload.single('file') เพื่อรับไฟล์จากหน้า CreateOrderView.vue
+// 1. สร้างออเดอร์ใหม่
 router.post('/', auth, upload.single('file'), orderController.createOrder);
 
-// 2. ดึงออเดอร์เฉพาะของ User (สำหรับหน้า Dashboard)
-// ตรวจสอบว่าใน controller ชื่อ getUserOrders ตรงกัน
+// 2. ดึงออเดอร์ของ User เอง
 router.get('/my-orders', auth, orderController.getUserOrders);
 
-// 3. ดึงออเดอร์ทั้งหมด (สำหรับ Admin)
-router.get('/admin/all', auth, authorize('admin'), orderController.getAllOrders); 
+// 3. ดึงออเดอร์ทั้งหมด (Admin เท่านั้น)
+router.get('/admin/all', auth, authorize('admin'), orderController.getAllOrders);
 
+// 4. อัปเดตสถานะออเดอร์ (Admin เท่านั้น)
+router.patch('/:id/status', auth, authorize('admin'), orderController.updateOrderStatus);
+
+// 5. ลบออเดอร์ (Admin เท่านั้น)
+router.delete('/:id', auth, authorize('admin'), orderController.deleteOrder);
+
+// ✅ ตรวจสอบบรรทัดนี้: ต้องไม่มีปีกกาครอบ router
 module.exports = router;

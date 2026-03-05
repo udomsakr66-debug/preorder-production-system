@@ -1,13 +1,14 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path'); // เพิ่มบรรทัดนี้
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
-app.use('/uploads', express.static('src/uploads')); // ให้เข้าถึงไฟล์ที่อัปโหลดได้ผ่าน URL
 
-// Routes
+// แก้ไขบรรทัดนี้: เปลี่ยนจาก 'src/uploads' เป็น '../uploads'
+app.use('/uploads', express.static(path.join(__dirname, '../uploads'))); 
+
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/orders', require('./routes/order.routes'));
 

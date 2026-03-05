@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-  orderNumber: { type: String, required: true, unique: true }, // เช่น ORD-2024-001
-  customer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  orderNumber: { type: String, required: true, unique: true },
+  // 🚩 แก้จาก customer เป็น user
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, 
   productName: { type: String, required: true },
   specs: {
     material: String,
@@ -11,7 +12,7 @@ const orderSchema = new mongoose.Schema({
     quantity: { type: Number, default: 1 },
     note: String
   },
-  fileUrl: { type: String }, // Path ของไฟล์ที่อัปโหลด
+  fileUrl: { type: String },
   totalPrice: { type: Number, required: true },
   status: { 
     type: String, 
