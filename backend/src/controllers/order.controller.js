@@ -5,8 +5,14 @@ const orderService = require('../services/order.service');
 exports.createOrder = async (req, res) => {
     try {
         let specs = req.body.specs;
+        
+        // แปลง specs จาก String เป็น Object (กรณีส่งมาแบบ FormData)
         if (typeof specs === 'string') {
-            try { specs = JSON.parse(specs); } catch (e) { specs = {}; }
+            try { 
+                specs = JSON.parse(specs); 
+            } catch (e) { 
+                specs = {}; 
+            }
         }
 
         const orderData = {
@@ -15,10 +21,15 @@ exports.createOrder = async (req, res) => {
                 material: req.body.material || specs?.material,
                 width: req.body.width || specs?.width,
                 height: req.body.height || specs?.height,
-                quantity: req.body.quantity || specs?.quantity
+                quantity: req.body.quantity || specs?.quantity,
+                // ✅ เพิ่ม 2 บรรทัดนี้เพื่อให้ดึงค่าการเคลือบและการตัดมาบันทึก
+                finish: req.body.finish || specs?.finish || 'none',
+                cutting: req.body.cutting || specs?.cutting || 'die_cut',
+                note: req.body.note || specs?.note || ''
             }
         };
 
+        // ส่งข้อมูลไปให้ Service สร้างออเดอร์ลง Database
         const order = await orderService.createNewOrder(orderData, req.file, req.user.id);
         
         res.status(201).json({
@@ -27,6 +38,7 @@ exports.createOrder = async (req, res) => {
             data: order
         });
     } catch (err) {
+        console.error("Create Order Error:", err);
         res.status(500).json({ success: false, message: err.message });
     }
 };

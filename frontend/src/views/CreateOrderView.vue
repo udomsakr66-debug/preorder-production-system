@@ -5,16 +5,16 @@
     <form @submit.prevent="handleSubmit" enctype="multipart/form-data">
       <div class="mb-4">
         <label class="block font-semibold mb-1">ชื่อโครงการ / ชื่อสินค้า</label>
-        <input v-model="form.productName" type="text" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none" placeholder="เช่น สติกเกอร์ไดคัทวงกลม" required />
+        <input v-model="form.productName" type="text" class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none" placeholder="เช่น สติกเกอร์โลโก้ร้านอาหาร" required />
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <div>
           <label class="block font-semibold mb-1">วัสดุ</label>
           <select v-model="form.specs.material" class="w-full border p-3 rounded-lg">
-            <option value="pvc">PVC</option>
-            <option value="pp">PP</option>
-            <option value="paper">กระดาษ</option>
+            <option v-for="opt in options.materials" :key="opt.value" :value="opt.value">
+              {{ opt.label }}
+            </option>
           </select>
         </div>
         <div>
@@ -27,9 +27,28 @@
         </div>
       </div>
 
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block font-semibold mb-1">การเคลือบผิว (Finishing)</label>
+          <select v-model="form.specs.finish" class="w-full border p-3 rounded-lg">
+            <option v-for="opt in options.finishes" :key="opt.value" :value="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">รูปแบบการตัด (Cutting)</label>
+          <select v-model="form.specs.cutting" class="w-full border p-3 rounded-lg">
+            <option v-for="opt in options.cuttings" :key="opt.value" :value="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+
       <div class="mb-4">
         <label class="block font-semibold mb-1">จำนวนที่สั่ง (ชิ้น)</label>
-        <input v-model.number="form.specs.quantity" type="number" class="w-full border p-3 rounded-lg" required />
+        <input v-model.number="form.specs.quantity" type="number" class="w-full border p-3 rounded-lg" min="1" required />
       </div>
 
       <div class="mb-6 p-4 border-2 border-dashed border-gray-300 rounded-lg text-center bg-gray-50">
@@ -58,13 +77,37 @@ const selectedFile = ref(null);
 const fileName = ref('');
 const isSubmitting = ref(false);
 
+// รวมรายการ Options ไว้ที่เดียวเพื่อให้จัดการง่าย
+const options = {
+  materials: [
+    { label: 'PVC ขาวนม (กันน้ำ)', value: 'pvc_white' },
+    { label: 'PVC ใส (กันน้ำ)', value: 'pvc_clear' },
+    { label: 'PP (กันน้ำ/ฉีกไม่ขาด)', value: 'pp' },
+    { label: 'กระดาษขาวเงา/ด้าน', value: 'paper' },
+    { label: 'กระดาษคราฟท์ (น้ำตาล)', value: 'kraft' },
+    { label: 'ฟอยล์ เงิน/ทอง', value: 'metallic' }
+  ],
+  finishes: [
+    { label: 'ไม่เคลือบ', value: 'none' },
+    { label: 'เคลือบเงา (Glossy)', value: 'glossy' },
+    { label: 'เคลือบด้าน (Matte)', value: 'matte' }
+  ],
+  cuttings: [
+    { label: 'ไดคัทตามทรง (Die-cut)', value: 'die_cut' },
+    { label: 'ตัดแยกชิ้นสี่เหลี่ยม', value: 'square_cut' },
+    { label: 'ตัดแบบครึ่งดวง (Kiss-cut)', value: 'kiss_cut' }
+  ]
+};
+
 const form = reactive({
   productName: '',
   specs: {
-    material: 'pvc',
+    material: 'pvc_white',
     width: 0,
     height: 0,
-    quantity: 1
+    quantity: 1,
+    finish: 'none',
+    cutting: 'die_cut'
   }
 });
 
@@ -81,9 +124,9 @@ const handleSubmit = async () => {
   try {
     const formData = new FormData();
     formData.append('productName', form.productName);
-    formData.append('specs', JSON.stringify(form.specs)); // แปลงสเปคเป็น JSON string
+    formData.append('specs', JSON.stringify(form.specs));
     if (selectedFile.value) {
-      formData.append('file', selectedFile.value); // ชื่อ 'file' ต้องตรงกับ Multer ใน Backend
+      formData.append('file', selectedFile.value);
     }
 
     const token = localStorage.getItem('token');

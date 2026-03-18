@@ -10,6 +10,9 @@ const orderSchema = new mongoose.Schema({
     width: Number,
     height: Number,
     quantity: { type: Number, default: 1 },
+    // ✅ เพิ่ม 2 ฟิลด์นี้เพื่อให้รองรับข้อมูลจากหน้าบ้าน
+    finish: { type: String, default: 'none' },   // การเคลือบผิว
+    cutting: { type: String, default: 'die_cut' }, // รูปแบบการตัด
     note: String
   },
   fileUrl: { type: String },

@@ -20,5 +20,13 @@ export default {
     return await axios.get(`${API_URL}/my-orders`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
+  },
+
+  // --- เพิ่มฟังก์ชันนี้เข้าไปครับ ---
+  async getAllOrdersForAdmin() {
+    const token = localStorage.getItem('token');
+    return await axios.get(`${API_URL}/admin/all`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
   }
 };
